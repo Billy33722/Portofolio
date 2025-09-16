@@ -1,0 +1,198 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Portafolio</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="#home">Portafolio</a>
+      <button id="menuToggle" class="icon-button" aria-label="Toggle menu">
+        <span class="icon"></span>
+      </button>
+      <nav id="mainNav" class="nav-links">
+        <a href="#home">Home</a>
+        <a href="#projects">Projects</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+        <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme"></button>
+      </nav>
+    </div>
+  </header>
+  <main>
+    <section id="home" class="section hero">
+      <div class="container">
+        <h1>Hello! I'm <span class="highlight-name">Bilal Khasakhanov</span></h1>
+        <p>Frontend / Backend / FullStack developer. Creating fast and user-friendly web applications.</p>
+        <div class="hero-cta">
+          <a class="button primary" href="#projects">My Projects</a>
+          <a class="button" href="#contact">Get In Touch</a>
+        </div>
+      </div>
+    </section>
+    <section id="projects" class="section">
+      <div class="container">
+        <div class="projects-header">
+          <h2>Projects</h2>
+          <button class="button view-all-btn" id="viewAllBtn">View All</button>
+        </div>
+        <div class="carousel-container">
+          <button class="carousel-arrow carousel-arrow-left" id="prevBtn" aria-label="Previous projects">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15,18 9,12 15,6"></polyline>
+            </svg>
+          </button>
+          <div class="carousel-wrapper">
+            <div class="carousel-track" id="carouselTrack">
+              <article class="card">
+                <div class="image-wrapper">
+                  <img src="C:\my portafolio site\Portafolio\IMG\teplotec.jpg" alt="Teplotec handyman services website preview" loading="lazy" referrerpolicy="no-referrer" onerror="this.onerror=null;this.src='https://picsum.photos/1200/675?random=101';" />
+                </div>
+                <h3>Teplotec</h3>
+                <p>A modern services website for handyman and technical solutions in Belgium. Focus on clear service structure, quick booking, and trust-building UI.</p>
+                <div class="badges">
+                  <span class="badge">HTML</span>
+                  <span class="badge">CSS</span>
+                  <span class="badge">JavaScript</span>
+                  <span class="badge">Responsive</span>
+                </div>
+                <a class="link" href="https://teplotec.be/" target="_blank" rel="noopener">View site</a>
+              </article>
+              <article class="card">
+                <div class="image-wrapper">
+                  <img src="https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1200&q=60" alt="React and Node.js web app screenshot" loading="lazy" />
+                </div>
+                <h3>SaaS Dashboard</h3>
+                <p>Interactive analytics dashboard with authentication, charts, and API integrations. Optimized for performance and accessibility.</p>
+                <div class="badges">
+                  <span class="badge">React</span>
+                  <span class="badge">Node.js</span>
+                  <span class="badge">REST API</span>
+                  <span class="badge">Auth</span>
+                </div>
+                <a class="link" href="#" target="_blank" rel="noopener">View project</a>
+              </article>
+              <article class="card">
+                <div class="image-wrapper">
+                  <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=60" alt="Static site with Astro and API content" loading="lazy" />
+                </div>
+                <h3>Content Hub</h3>
+                <p>Blazing-fast content site built with Astro and external APIs. Delivers excellent Lighthouse scores and SEO-friendly markup.</p>
+                <div class="badges">
+                  <span class="badge">Astro</span>
+                  <span class="badge">API</span>
+                  <span class="badge">SEO</span>
+                  <span class="badge">Lighthouse 95+</span>
+                </div>
+                <a class="link" href="#" target="_blank" rel="noopener">View project</a>
+              </article>
+              <article class="card">
+                <div class="image-wrapper">
+                  <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=60" alt="E-commerce platform screenshot" loading="lazy" />
+                </div>
+                <h3>E-commerce Platform</h3>
+                <p>Full-stack e-commerce solution with payment integration, inventory management, and admin dashboard. Built for scalability and user experience.</p>
+                <div class="badges">
+                  <span class="badge">Vue.js</span>
+                  <span class="badge">Express</span>
+                  <span class="badge">MongoDB</span>
+                  <span class="badge">Stripe</span>
+                </div>
+                <a class="link" href="#" target="_blank" rel="noopener">View project</a>
+              </article>
+              <article class="card">
+                <div class="image-wrapper">
+                  <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1200&q=60" alt="Mobile app interface screenshot" loading="lazy" />
+                </div>
+                <h3>Task Manager App</h3>
+                <p>Cross-platform mobile app for task management with real-time sync, team collaboration features, and intuitive design patterns.</p>
+                <div class="badges">
+                  <span class="badge">React Native</span>
+                  <span class="badge">Firebase</span>
+                  <span class="badge">Redux</span>
+                  <span class="badge">Push Notifications</span>
+                </div>
+                <a class="link" href="#" target="_blank" rel="noopener">View project</a>
+              </article>
+              <article class="card">
+                <div class="image-wrapper">
+                  <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=60" alt="Portfolio website screenshot" loading="lazy" />
+                </div>
+                <h3>Creative Portfolio</h3>
+                <p>Minimalist portfolio website showcasing creative work with smooth animations, dark mode, and optimized performance across devices.</p>
+                <div class="badges">
+                  <span class="badge">Next.js</span>
+                  <span class="badge">Framer Motion</span>
+                  <span class="badge">Tailwind</span>
+                  <span class="badge">Vercel</span>
+                </div>
+                <a class="link" href="#" target="_blank" rel="noopener">View project</a>
+              </article>
+            </div>
+          </div>
+          <button class="carousel-arrow carousel-arrow-right" id="nextBtn" aria-label="Next projects">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9,18 15,12 9,6"></polyline>
+            </svg>
+          </button>
+        </div>
+        <div class="carousel-dots" id="carouselDots"></div>
+      </div>
+    </section>
+    <section id="about" class="section alt">
+      <div class="container about">
+        <h2>About Me</h2>
+        <div class="about-grid">
+          <div class="about-media">
+            <div class="about-photo">
+              <img src="IMG/profile.jpg" alt="Profile photo" loading="lazy" onerror="this.onerror=null;this.src='https://picsum.photos/600/800?random=55';" />
+              <span class="about-badge">Available for work</span>
+            </div>
+          </div>
+          <div class="about-content">
+            <p class="lead">I'm a Full‑Stack developer focused on building fast, accessible and delightful web experiences.</p>
+            <p>I specialize in modern front‑end frameworks and robust back‑end APIs. I love solving real problems for people and delivering pixel‑perfect, maintainable code.</p>
+            <div class="skills">
+              <span class="badge">JavaScript</span>
+              <span class="badge">TypeScript</span>
+              <span class="badge">React</span>
+              <span class="badge">Node.js</span>
+              <span class="badge">CSS</span>
+              <span class="badge">Astro</span>
+            </div>
+            <div class="stats">
+              <div class="stat"><span class="num" data-target="5">0</span><span class="label">Years experience</span></div>
+              <div class="stat"><span class="num" data-target="30">0</span><span class="label">Projects</span></div>
+              <div class="stat"><span class="num" data-target="12">0</span><span class="label">Happy clients</span></div>
+            </div>
+            <div class="about-cta">
+              <a class="button primary" href="#projects">See my work</a>
+              <a class="button" href="#contact">Hire me</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section id="contact" class="section">
+      <div class="container">
+        <h2>Contact</h2>
+        <form class="contact-form" action="#" method="post" onsubmit="return false;">
+          <div class="form-row">
+            <input type="text" name="name" placeholder="Your Name" required />
+            <input type="email" name="email" placeholder="Email" required />
+          </div>
+          <textarea name="message" rows="5" placeholder="Message" required></textarea>
+          <button class="button primary" type="submit">Send</button>
+        </form>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <div class="container"> <span id="year"></span> Portafolio</div>
+  </footer>
+  <script src="script.js" defer></script>
+</body>
+</html>
