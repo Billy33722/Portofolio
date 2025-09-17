@@ -5,9 +5,13 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
 });
 
+// Config: set your Formspree endpoint here (replace YOUR_FORM_ID)
+const FORMSPREE_ENDPOINT = 'https://formspree.io/f/mgvljnzv';
+
 function initializeApp() {
     // Set up event listeners
     setupMobileMenu();
+    setupI18n();
     setupThemeToggle();
     setupSmoothScrolling();
     setupProjectImageLinks();
@@ -133,12 +137,18 @@ function setupThemeToggle() {
     const themeToggle = document.getElementById('themeToggle');
     const body = document.body;
     
+    if (!themeToggle) {
+        return;
+    }
+    
     // Check for saved theme preference or default to light mode
     const savedTheme = localStorage.getItem('theme') || 'light';
     body.setAttribute('data-theme', savedTheme);
     
     if (themeToggle) {
-        themeToggle.addEventListener('click', function() {
+        themeToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
             const currentTheme = body.getAttribute('data-theme');
             const newTheme = currentTheme === 'light' ? 'dark' : 'light';
             
@@ -191,21 +201,80 @@ function setupFormHandling() {
             const name = formData.get('name');
             const email = formData.get('email');
             const message = formData.get('message');
+            const projectType = formData.get('project_type');
+            const budget = formData.get('budget');
+            const company = formData.get('company');
+            const phone = formData.get('phone');
+            const newsletter = formData.get('newsletter') === 'on';
             
+            // Get current language
+            const currentLang = document.getElementById('langToggle')?.dataset.lang || 'en';
+            const translations = {
+                en: {
+                    'notification.success': 'Thank you for your message! I will get back to you soon.',
+                    'notification.error.fields': 'Please fill in all fields',
+                    'notification.error.email': 'Please enter a valid email address',
+                    'notification.error.network': 'Network error. Please check your connection and try again.',
+                    'notification.error.form': 'Form endpoint not configured. Please provide your Formspree ID.',
+                    'notification.error.submit': 'Submission failed. Please try again later.'
+                },
+                nl: {
+                    'notification.success': 'Bedankt voor je bericht! Ik neem binnenkort contact met je op.',
+                    'notification.error.fields': 'Vul alle velden in',
+                    'notification.error.email': 'Voer een geldig e-mailadres in',
+                    'notification.error.network': 'Netwerkfout. Controleer je verbinding en probeer opnieuw.',
+                    'notification.error.form': 'Formulier endpoint niet geconfigureerd. Geef je Formspree ID op.',
+                    'notification.error.submit': 'Verzending mislukt. Probeer later opnieuw.'
+                }
+            };
+            const dict = translations[currentLang] || translations.en;
+
             // Basic validation
-            if (!name || !email || !message) {
-                showNotification('Please fill in all fields', 'error');
+            if (!name || !email || !message || !projectType || !budget) {
+                showNotification(dict['notification.error.fields'], 'error');
                 return;
             }
             
             if (!isValidEmail(email)) {
-                showNotification('Please enter a valid email address', 'error');
+                showNotification(dict['notification.error.email'], 'error');
                 return;
             }
             
-            // Simulate form submission
-            showNotification('Thank you for your message! I will get back to you soon.', 'success');
-            this.reset();
+            // Submit via Formspree
+            if (!FORMSPREE_ENDPOINT || FORMSPREE_ENDPOINT.includes('YOUR_FORM_ID')) {
+                showNotification(dict['notification.error.form'], 'error');
+                return;
+            }
+
+            // Add loading state to button
+            const submitButton = contactForm.querySelector('.button.primary');
+            const originalText = submitButton.textContent;
+            submitButton.classList.add('loading');
+            submitButton.textContent = '';
+
+            fetch(FORMSPREE_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Accept': 'application/json' },
+                body: new FormData(contactForm)
+            })
+            .then(async (response) => {
+                if (response.ok) {
+                    showNotification(dict['notification.success'], 'success');
+                    contactForm.reset();
+                } else {
+                    const data = await response.json().catch(() => ({}));
+                    const errorMsg = (data && data.errors && data.errors[0] && data.errors[0].message) || dict['notification.error.submit'];
+                    showNotification(errorMsg, 'error');
+                }
+            })
+            .catch(() => {
+                showNotification(dict['notification.error.network'], 'error');
+            })
+            .finally(() => {
+                // Remove loading state
+                submitButton.classList.remove('loading');
+                submitButton.textContent = originalText;
+            });
         });
     }
 }
@@ -519,6 +588,284 @@ window.addEventListener('scroll', debounce(() => {
 window.addEventListener('load', () => {
     document.body.classList.add('loaded');
 });
+
+// Simple i18n (EN/NL)
+function setupI18n() {
+    const langToggle = document.getElementById('langToggle');
+    if (!langToggle) {
+        return;
+    }
+
+    const translations = {
+        en: {
+            'nav.home': 'Home',
+            'nav.projects': 'Projects',
+            'nav.about': 'About',
+            'nav.services': 'Services',
+            'nav.contact': 'Contact',
+            'hero.title': "Hello! I'm <span class=\"highlight-name\">Bilal Khasakhanov</span>",
+            'hero.subtitle': 'Frontend / Backend / FullStack developer. Creating fast and user-friendly web applications.',
+            'hero.ctaPrimary': 'My Projects',
+            'hero.ctaSecondary': 'Get In Touch',
+            'projects.title': 'Projects',
+            'projects.viewAll': 'View All',
+            'projects.teplotec.title': 'Teplotec',
+            'projects.teplotec.desc': 'A modern services website for handyman and technical solutions in Belgium. Focus on clear service structure, quick booking, and trust-building UI.',
+            'projects.saas.desc': 'Interactive analytics dashboard with authentication, charts, and API integrations. Optimized for performance and accessibility.',
+            'projects.content.desc': 'Blazing-fast content site built with Astro and external APIs. Delivers excellent Lighthouse scores and SEO-friendly markup.',
+            'projects.ecom.desc': 'Full-stack e-commerce solution with payment integration, inventory management, and admin dashboard. Built for scalability and user experience.',
+            'projects.task.desc': 'Cross-platform mobile app for task management with real-time sync, team collaboration features, and intuitive design patterns.',
+            'projects.portfolio.desc': 'Minimalist portfolio website showcasing creative work with smooth animations, dark mode, and optimized performance across devices.',
+            'projects.viewSite': 'View site',
+            'services.title': 'Services',
+            'services.subtitle': 'Choose the perfect package for your project',
+            'services.landing.title': 'Landing Page',
+            'services.landing.desc': 'Single page website with contact form, mobile responsive design.',
+            'services.landing.feature1': 'Mobile responsive',
+            'services.landing.feature2': 'Contact form',
+            'services.landing.feature3': 'SEO optimized',
+            'services.landing.price': '€599',
+            'services.business.title': 'Business Website',
+            'services.business.desc': 'Multi-page website with CMS, blog, and admin panel.',
+            'services.business.feature1': 'Up to 10 pages',
+            'services.business.feature2': 'WordPress CMS',
+            'services.business.feature3': 'Blog system',
+            'services.business.feature4': 'Admin panel',
+            'services.business.price': '€1299',
+            'services.ecommerce.title': 'E-commerce Store',
+            'services.ecommerce.desc': 'Full online store with payment integration and inventory management.',
+            'services.ecommerce.feature1': 'Payment integration',
+            'services.ecommerce.feature2': 'Inventory management',
+            'services.ecommerce.feature3': 'Order tracking',
+            'services.ecommerce.feature4': 'Admin dashboard',
+            'services.ecommerce.price': '€2499',
+            'services.popular': 'Most Popular',
+            'process.title': 'How I Work',
+            'process.subtitle': 'Simple 4-step process from idea to launch',
+            'process.step1.title': 'Discovery',
+            'process.step1.desc': 'We discuss your goals, target audience, and requirements to create the perfect solution.',
+            'process.step2.title': 'Design',
+            'process.step2.desc': 'I create wireframes and mockups to visualize your project before development starts.',
+            'process.step3.title': 'Development',
+            'process.step3.desc': 'Clean, efficient code development with regular updates and feedback sessions.',
+            'process.step4.title': 'Launch',
+            'process.step4.desc': 'Deployment, testing, and handover with documentation and ongoing support.',
+            'pricing.title': 'Pricing',
+            'pricing.subtitle': 'Transparent pricing with no hidden fees',
+            'pricing.hourly.title': 'Hourly Rate',
+            'pricing.hourly.price': '€65<span>/hour</span>',
+            'pricing.hourly.feature1': 'Perfect for small tasks',
+            'pricing.hourly.feature2': 'Bug fixes & updates',
+            'pricing.hourly.feature3': 'Consultations',
+            'pricing.hourly.feature4': 'Minimum 2 hours',
+            'pricing.project.title': 'Project Based',
+            'pricing.project.price': '€599<span>-€2499</span>',
+            'pricing.project.feature1': 'Fixed price packages',
+            'pricing.project.feature2': 'No surprise costs',
+            'pricing.project.feature3': '3 months support',
+            'pricing.project.feature4': 'Source code included',
+            'pricing.maintenance.title': 'Maintenance',
+            'pricing.maintenance.price': '€199<span>/month</span>',
+            'pricing.maintenance.feature1': 'Regular updates',
+            'pricing.maintenance.feature2': 'Security monitoring',
+            'pricing.maintenance.feature3': 'Backup & restore',
+            'pricing.maintenance.feature4': 'Priority support',
+            'pricing.contact': 'Get Quote',
+            'pricing.recommended': 'Recommended',
+            'nav.process': 'Process',
+            'nav.pricing': 'Pricing',
+            'contact.title': 'Contact',
+            'contact.email': '✉️ bilal.khasakhanov@gmail.com',
+            'contact.phone': '📞 +32 490 43 72 44',
+            'contact.location': '📍 Oudenaarde, Belgium',
+            'contact.form.name': 'Your Name',
+            'contact.form.email': 'Email',
+            'contact.form.message': 'Tell me about your project...',
+            'contact.form.send': 'Send Message',
+            'contact.form.projectType': 'Project Type',
+            'contact.form.selectProject': 'Select Project Type',
+            'contact.form.landing': 'Landing Page (€599)',
+            'contact.form.business': 'Business Website (€1299)',
+            'contact.form.ecommerce': 'E-commerce Store (€2499)',
+            'contact.form.custom': 'Custom Project',
+            'contact.form.maintenance': 'Maintenance (€199/month)',
+            'contact.form.consultation': 'Consultation (€65/hour)',
+            'contact.form.budget': 'Budget Range',
+            'contact.form.selectBudget': 'Select Budget Range',
+            'contact.form.budget1': '€500 - €1000',
+            'contact.form.budget2': '€1000 - €2000',
+            'contact.form.budget3': '€2000 - €3000',
+            'contact.form.budget4': '€3000+',
+            'contact.form.budget5': 'Let\'s discuss',
+            'contact.form.company': 'Company (Optional)',
+            'contact.form.phone': 'Phone (Optional)',
+            'contact.form.newsletter': 'Subscribe to my newsletter for web development tips',
+            'about.title': 'About Me',
+            'about.lead': 'I\'m Bilal Khasakhanov, a 23‑year‑old Full‑Stack web developer crafting end‑to‑end digital products — from design to deployment.',
+            'about.desc': 'I design clean, user‑friendly interfaces and build reliable back‑end services with production‑ready hosting and infrastructure. My focus is performance, accessibility, and maintainable code that scales. I enjoy turning ideas into polished, real‑world solutions.',
+            'about.badge': 'Available for work',
+            'about.stats1': 'Years experience',
+            'about.stats2': 'Projects',
+            'about.stats3': 'Happy clients',
+            'about.cta1': 'See my work',
+            'about.cta2': 'Hire me',
+        },
+        nl: {
+            'nav.home': 'Home',
+            'nav.projects': 'Projecten',
+            'nav.about': 'Over',
+            'nav.services': 'Services',
+            'nav.contact': 'Contact',
+            'hero.title': "Hallo! Ik ben <span class=\"highlight-name\">Bilal Khasakhanov</span>",
+            'hero.subtitle': 'Full‑Stack ontwikkelaar: front‑end, back‑end en hosting. Snelle en gebruiksvriendelijke webapps.',
+            'hero.ctaPrimary': 'Mijn Projecten',
+            'hero.ctaSecondary': 'Contact opnemen',
+            'projects.title': 'Projecten',
+            'projects.viewAll': 'Alles bekijken',
+            'projects.teplotec.title': 'Teplotec',
+            'projects.teplotec.desc': 'Een moderne dienstensite voor handyman en technische oplossingen in België. Focus op duidelijke dienstenstructuur, snelle boeking en vertrouwenwekkende UI.',
+            'projects.saas.desc': 'Interactief analytics-dashboard met login, grafieken en API-integraties. Geoptimaliseerd voor prestaties en toegankelijkheid.',
+            'projects.content.desc': 'Razendsnelle content-site met Astro en externe API\'s. Uitstekende Lighthouse-scores en SEO-vriendelijke markup.',
+            'projects.ecom.desc': 'Full-stack e-commerce oplossing met betalingsintegratie, voorraadbeheer en admin-dashboard. Gebouwd voor schaalbaarheid en gebruikservaring.',
+            'projects.task.desc': 'Cross-platform takenapp voor taakbeheer met realtime synchronisatie, team samenwerking en intuïtief ontwerp.',
+            'projects.portfolio.desc': 'Minimalistische portfolio website met vloeiende animaties, dark mode en optimale prestaties op alle apparaten.',
+            'projects.viewSite': 'Bekijk site',
+            'services.title': 'Diensten',
+            'services.subtitle': 'Kies het perfecte pakket voor jouw project',
+            'services.landing.title': 'Landingspagina',
+            'services.landing.desc': 'Eénpagina website met contactformulier en mobiele responsive design.',
+            'services.landing.feature1': 'Mobiel responsive',
+            'services.landing.feature2': 'Contactformulier',
+            'services.landing.feature3': 'SEO geoptimaliseerd',
+            'services.landing.price': '€599',
+            'services.business.title': 'Bedrijfswebsite',
+            'services.business.desc': 'Meerpagina website met CMS, blog en admin panel.',
+            'services.business.feature1': 'Tot 10 pagina\'s',
+            'services.business.feature2': 'WordPress CMS',
+            'services.business.feature3': 'Blog systeem',
+            'services.business.feature4': 'Admin panel',
+            'services.business.price': '€1299',
+            'services.ecommerce.title': 'E-commerce Winkel',
+            'services.ecommerce.desc': 'Volledige online winkel met betalingsintegratie en voorraadbeheer.',
+            'services.ecommerce.feature1': 'Betalingsintegratie',
+            'services.ecommerce.feature2': 'Voorraadbeheer',
+            'services.ecommerce.feature3': 'Order tracking',
+            'services.ecommerce.feature4': 'Admin dashboard',
+            'services.ecommerce.price': '€2499',
+            'services.popular': 'Meest Populair',
+            'process.title': 'Hoe Ik Werk',
+            'process.subtitle': 'Eenvoudig 4-stappen proces van idee tot lancering',
+            'process.step1.title': 'Ontdekking',
+            'process.step1.desc': 'We bespreken jouw doelen, doelgroep en vereisten om de perfecte oplossing te creëren.',
+            'process.step2.title': 'Ontwerp',
+            'process.step2.desc': 'Ik maak wireframes en mockups om jouw project te visualiseren voordat de ontwikkeling begint.',
+            'process.step3.title': 'Ontwikkeling',
+            'process.step3.desc': 'Schone, efficiënte code ontwikkeling met regelmatige updates en feedback sessies.',
+            'process.step4.title': 'Lancering',
+            'process.step4.desc': 'Deployment, testing en overdracht met documentatie en doorlopende ondersteuning.',
+            'pricing.title': 'Prijzen',
+            'pricing.subtitle': 'Transparante prijzen zonder verborgen kosten',
+            'pricing.hourly.title': 'Uurtarief',
+            'pricing.hourly.price': '€35<span>/uur</span>',
+            'pricing.hourly.feature1': 'Perfect voor kleine taken',
+            'pricing.hourly.feature2': 'Bug fixes & updates',
+            'pricing.hourly.feature3': 'Consultaties',
+            'pricing.hourly.feature4': 'Minimum 2 uur',
+            'pricing.project.title': 'Project Gebaseerd',
+            'pricing.project.price': '€599<span>-€2499</span>',
+            'pricing.project.feature1': 'Vaste prijs pakketten',
+            'pricing.project.feature2': 'Geen verrassingskosten',
+            'pricing.project.feature3': '3 maanden ondersteuning',
+            'pricing.project.feature4': 'Broncode inbegrepen',
+            'pricing.maintenance.title': 'Onderhoud',
+            'pricing.maintenance.price': '€99<span>/maand</span>',
+            'pricing.maintenance.feature1': 'Regelmatige updates',
+            'pricing.maintenance.feature2': 'Beveiligingsmonitoring',
+            'pricing.maintenance.feature3': 'Backup & herstel',
+            'pricing.maintenance.feature4': 'Prioriteitsondersteuning',
+            'pricing.contact': 'Offerte Aanvragen',
+            'pricing.recommended': 'Aanbevolen',
+            'nav.process': 'Proces',
+            'nav.pricing': 'Prijzen',
+            'contact.title': 'Contact',
+            'contact.email': '✉️ bilal.khasakhanov@gmail.com',
+            'contact.phone': '📞 +32 490 43 72 44',
+            'contact.location': '📍 Oudenaarde, België',
+            'contact.form.name': 'Uw naam',
+            'contact.form.email': 'E‑mail',
+            'contact.form.message': 'Vertel me over uw project...',
+            'contact.form.send': 'Bericht Versturen',
+            'contact.form.projectType': 'Project Type',
+            'contact.form.selectProject': 'Selecteer Project Type',
+            'contact.form.landing': 'Landingspagina (€599)',
+            'contact.form.business': 'Bedrijfswebsite (€1299)',
+            'contact.form.ecommerce': 'E-commerce Winkel (€2499)',
+            'contact.form.custom': 'Aangepast Project',
+            'contact.form.maintenance': 'Onderhoud (€199/maand)',
+            'contact.form.consultation': 'Consultatie (€65/uur)',
+            'contact.form.budget': 'Budget Range',
+            'contact.form.selectBudget': 'Selecteer Budget Range',
+            'contact.form.budget1': '€500 - €1000',
+            'contact.form.budget2': '€1000 - €2000',
+            'contact.form.budget3': '€2000 - €3000',
+            'contact.form.budget4': '€3000+',
+            'contact.form.budget5': 'Laten we bespreken',
+            'contact.form.company': 'Bedrijf (Optioneel)',
+            'contact.form.phone': 'Telefoon (Optioneel)',
+            'contact.form.newsletter': 'Abonneer op mijn nieuwsbrief voor web development tips',
+            'about.title': 'Over Mij',
+            'about.lead': 'Ik ben Bilal Khasakhanov, een 23‑jarige Full‑Stack webontwikkelaar die end‑to‑end digitale producten creëert — van ontwerp tot implementatie.',
+            'about.desc': 'Ik ontwerp schone, gebruiksvriendelijke interfaces en bouw betrouwbare back‑end services met productie‑klaar hosting en infrastructuur. Mijn focus ligt op prestaties, toegankelijkheid en onderhoudbare code die schaalt. Ik geniet ervan ideeën om te zetten in verfijnde, real‑world oplossingen.',
+            'about.cta1': 'Bekijk mijn werk',
+            'about.cta2': 'Huur me in',
+            'about.stats1': 'Jaar ervaring',
+            'about.stats2': 'Projecten',
+            'about.stats3': 'Tevreden klanten',
+            'about.badge': 'Beschikbaar voor werk',
+            'footer.copyright': 'Alle rechten voorbehouden.',
+            'notification.success': 'Bedankt voor je bericht! Ik neem binnenkort contact met je op.',
+            'notification.error.fields': 'Vul alle velden in',
+            'notification.error.email': 'Voer een geldig e-mailadres in',
+            'notification.error.network': 'Netwerkfout. Controleer je verbinding en probeer opnieuw.',
+            'notification.error.form': 'Formulier endpoint niet geconfigureerd. Geef je Formspree ID op.',
+            'notification.error.submit': 'Verzending mislukt. Probeer later opnieuw.'
+        }
+    };
+
+    function applyTranslations(lang) {
+        const dict = translations[lang] || translations.en;
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (dict[key]) {
+                el.innerHTML = dict[key];
+            }
+        });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            const key = el.getAttribute('data-i18n-placeholder');
+            if (dict[key]) {
+                el.setAttribute('placeholder', dict[key]);
+            }
+        });
+    }
+
+    // Init
+    const saved = localStorage.getItem('lang') || 'en';
+    applyTranslations(saved);
+    langToggle.textContent = saved.toUpperCase();
+    langToggle.dataset.lang = saved;
+
+    // Toggle
+    langToggle.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const current = langToggle.dataset.lang || 'en';
+        const next = current === 'en' ? 'nl' : 'en';
+        langToggle.dataset.lang = next;
+        langToggle.textContent = next.toUpperCase();
+        localStorage.setItem('lang', next);
+        applyTranslations(next);
+    });
+}
 
 // Add keyboard navigation support
 document.addEventListener('keydown', (e) => {
